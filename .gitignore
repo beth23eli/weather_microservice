@@ -1,2 +1,5 @@
 server/.env
 .idea/
+.venv/
+venv/
+*/__pycache__/

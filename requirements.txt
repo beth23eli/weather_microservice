@@ -1,1 +1,14 @@
 python-dotenv~=1.1.1
+grpcio~=1.74.0
+grpcio-tools~=1.74.0
+pip~=24.2
+configparser~=7.2.0
+protobuf~=6.31.1
+cryptography~=45.0.5
+pillow~=11.3.0
+Jinja2~=3.1.6
+click~=8.2.1
+setuptools~=80.9.0
+packaging~=25.0
+typing_extensions~=4.14.1
+requests~=2.32.0
