@@ -1,0 +1,40 @@
+
+services:
+  db:
+    image: postgres:15
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: weather_station_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: grpc_server
+    depends_on:
+      - db
+    environment:
+      - .env
+    ports:
+      - "50051:50051"
+    command: python -m server.weather_server
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: grpc_client
+    depends_on:
+      - server
+    command: python -m client.weather_client
+    stdin_open: true
+    tty: true
+
+volumes:
+  pgdata:

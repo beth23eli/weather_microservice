@@ -1,5 +1,23 @@
-server/.env
-.idea/
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environments
 .venv/
 venv/
-*/__pycache__/
+
+# IDEs
+.idea/
+
+# Docker
+.env
+
+**/__pycache__/
+
+
+**/*.pyc
+**/*.pyo
+
+server/models/__pycache__/
