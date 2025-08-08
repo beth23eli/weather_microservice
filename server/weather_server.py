@@ -6,7 +6,6 @@ import requests
 from server.models.WeatherRecord import WeatherRecord
 from server import create_app
 from server.extensions import db
-from flask import current_app
 
 app = create_app()
 
@@ -15,7 +14,6 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
         self.config = config
 
     def GetWeather(self, request, context):
-
         with app.app_context():
             city_name = request.city_name
 
@@ -25,18 +23,11 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
                 )
                 print(f"API response: {response.status_code}")
 
-                if response.status_code == 404:
-                    context.abort(grpc.StatusCode.NOT_FOUND, f"City '{city_name}' not found.")
-
-                if response.status_code != 200:
-                    context.abort(grpc.StatusCode.INTERNAL, f"API returned status code {response.status_code}")
-
-
-                weather_data = response.json()
-                city = weather_data.get("name", city_name)
-                main = weather_data.get("main", {})
-                weather = weather_data.get("weather", [{}])[0]
-                wind = weather_data.get("wind", {})
+                data = response.json()
+                city = data.get("name", city_name)
+                main = data.get("main", {})
+                weather = data.get("weather", [{}])[0]
+                wind = data.get("wind", {})
 
                 db.session.add(
                     WeatherRecord(
@@ -56,7 +47,14 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
                     humidity=main.get("humidity", 0),
                     wind_speed=wind.get("speed", 0.0)
                 )
+
+            except requests.exceptions.RequestException as e:
+                context.abort(grpc.StatusCode.UNAVAILABLE, f"API error: {e}")
             except Exception as e:
+                if response.status_code == 404:
+                    context.abort(grpc.StatusCode.NOT_FOUND, f"City '{city_name}' not found.")
+                db.session.rollback()
+
                 context.abort(grpc.StatusCode.INTERNAL, f"Unexpected error: {e}")
 
 

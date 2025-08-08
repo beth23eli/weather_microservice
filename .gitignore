@@ -10,7 +10,7 @@ venv/
 
 # IDEs
 .idea/
-
+client/node_modules
 # Docker
 .env
 

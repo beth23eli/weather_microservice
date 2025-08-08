@@ -13,12 +13,13 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   server:
+    depends_on:
+      - db
+    restart: always
     build:
       context: .
       dockerfile: server/Dockerfile
     container_name: grpc_server
-    depends_on:
-      - db
     environment:
       - .env
     ports:
