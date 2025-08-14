@@ -7,7 +7,7 @@ const WeatherChartComponent = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://server:5000/weather-chart")
+    fetch("http://localhost:5000/weather-chart")
       .then(res => res.json())
       .then(data => {
         setSeries(data);
@@ -30,11 +30,11 @@ const WeatherChartComponent = () => {
       curve: "smooth"
     },
     title: {
-      text: "Multi-City Temperature Trend",
+      text: "Temperature Chart",
       align: "left"
     },
     xaxis: {
-      type: "category",
+      type: "datetime",
       title: { text: "Date" },
       labels: { rotate: -45 }
     },

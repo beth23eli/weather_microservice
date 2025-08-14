@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
 from server.models.WeatherRecord import WeatherRecord
-from server.extensions import db
 from collections import defaultdict
 
 weather_routes = Blueprint("weather_bp", __name__)
@@ -13,7 +12,7 @@ def get_weather_data():
     weather_data = defaultdict(list)
     for weather_rec in weather_records:
         weather_data[weather_rec.city_name].append({
-            "x": weather_rec.strftime("%Y-%m-%d"),
+            "x": weather_rec.added_at.strftime("%Y-%m-%d"),
             "y": weather_rec.temperature
         })
 

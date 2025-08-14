@@ -3,6 +3,7 @@ from concurrent import futures
 from protos import weather_pb2, weather_pb2_grpc
 from server.config import Config
 import requests
+import threading
 from server.models.WeatherRecord import WeatherRecord
 from server import create_app
 from server.extensions import db
@@ -57,10 +58,17 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
 
                 context.abort(grpc.StatusCode.INTERNAL, f"Unexpected error: {e}")
 
+def run_flask():
+    print("Starting Flask server on port 5000...")
+    app.run(host="0.0.0.0", port=5000)
+
 
 def serve():
     with app.app_context():
         db.create_all()
+
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.start()
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         config = Config()
@@ -73,3 +81,4 @@ def serve():
 
 if __name__ == "__main__":
     serve()
+

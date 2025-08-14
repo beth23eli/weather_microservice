@@ -20,9 +20,10 @@ services:
       context: .
       dockerfile: server/Dockerfile
     container_name: grpc_server
-    environment:
-      - .env
+    env_file:
+      - server/.env
     ports:
+      - "5000:5000"
       - "50051:50051"
     command: python -m server.weather_server
 

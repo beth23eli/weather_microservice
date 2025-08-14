@@ -16,3 +16,4 @@ SQLAlchemy~=2.0.41
 Flask-SQLAlchemy
 Flask
 psycopg2-binary
+flask_cors
