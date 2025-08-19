@@ -7,7 +7,7 @@ const WeatherChartComponent = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/weather-chart")
+    fetch("http://localhost:5000/weather-data")
       .then(res => res.json())
       .then(data => {
         setSeries(data);

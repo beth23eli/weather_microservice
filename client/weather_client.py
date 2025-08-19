@@ -5,8 +5,7 @@ import time
 
 def run():
 
-    #with grpc.insecure_channel('localhost:50051') as channel:
-    with grpc.insecure_channel('grpc_server:50051') as channel:
+    with grpc.insecure_channel('grpc_server:50051') as channel: #with Docker
 
         stub = weather_pb2_grpc.WeatherServiceStub(channel)
 
@@ -15,17 +14,18 @@ def run():
 
             try:
                 response = stub.GetWeather(weather_pb2.WeatherRequest(city_name=city_name))
-
-                if "Failed" in response.description:
-                    print(f"Error: {response.description}")
-                else:
-                    print(f"\nWeather for {response.city_name}:\n"
-                          f"Temperature: "+"{:.2f}".format(response.temperature) +"°C\n"
-                          f"Description: {response.description}\n"
-                          f"Humidity: {response.humidity}%\n"
-                          f"Wind Speed: "+"{:.2f}".format(response.wind_speed) +" m/s\n")
+                print(f"\nWeather for {response.city_name}:\n"
+                    f"Temperature: {'{:.2f}'.format(response.temperature)}°C\n"
+                    f"Description: {response.description}\n"
+                    f"Humidity: {response.humidity}%\n"
+                    f"Wind Speed: {'{:.2f}'.format(response.wind_speed)} m/s\n")
             except grpc.RpcError as e:
-                print(f"RPC Error: {e.code().name} - {e.details()}")
+                if e.code() == grpc.StatusCode.NOT_FOUND:
+                    print(f"City not found: {city_name}")
+                elif e.code() == grpc.StatusCode.UNAVAILABLE:
+                    print("Weather service is unavailable.")
+                else:
+                    print(f"RPC Error: {e.code().name} - {e.details()}")
 
             if i < 4:
                 time.sleep(10)

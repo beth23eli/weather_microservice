@@ -10,6 +10,7 @@ from server.extensions import db
 
 app = create_app()
 
+
 class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
     def __init__(self, config:Config):
         self.config = config
@@ -23,7 +24,13 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
                     f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={self.config.OPENWEATHER_API_KEY}&units=metric"
                 )
                 print(f"API response: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                context.abort(grpc.StatusCode.UNAVAILABLE, f"API error: {e}")
 
+            if response.status_code == 404:
+                    context.abort(grpc.StatusCode.NOT_FOUND, f"City '{city_name}' not found.")
+                    
+            try:
                 data = response.json()
                 city = data.get("name", city_name)
                 main = data.get("main", {})
@@ -48,18 +55,12 @@ class WeatherService(weather_pb2_grpc.WeatherServiceServicer):
                     humidity=main.get("humidity", 0),
                     wind_speed=wind.get("speed", 0.0)
                 )
-
-            except requests.exceptions.RequestException as e:
-                context.abort(grpc.StatusCode.UNAVAILABLE, f"API error: {e}")
             except Exception as e:
-                if response.status_code == 404:
-                    context.abort(grpc.StatusCode.NOT_FOUND, f"City '{city_name}' not found.")
                 db.session.rollback()
-
                 context.abort(grpc.StatusCode.INTERNAL, f"Unexpected error: {e}")
 
+
 def run_flask():
-    print("Starting Flask server on port 5000...")
     app.run(host="0.0.0.0", port=5000)
 
 
@@ -81,4 +82,3 @@ def serve():
 
 if __name__ == "__main__":
     serve()
-
